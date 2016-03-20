@@ -42,4 +42,261 @@
     
   </entry>
   
+  <entry>
+    <title>Notes On Creating A Hexo Theme</title>
+    <link href="http://yoursite.com/2016/01/02/2016-01-02-Notes-On-Creating-A-Hexo-Theme/"/>
+    <id>http://yoursite.com/2016/01/02/2016-01-02-Notes-On-Creating-A-Hexo-Theme/</id>
+    <published>2016-01-01T16:00:00.000Z</published>
+    <updated>2016-03-20T06:58:01.729Z</updated>
+    
+    <content type="html">&lt;div class=&quot;image-strip&quot;&gt;&lt;br&gt;&lt;img src=&quot;https://s3.amazonaws.com/ptsteadman-images/hexo.png&quot;&gt;&lt;br&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;Setup&quot;&gt;&lt;a href=&quot;#Setup&quot; class=&quot;headerlink&quot; title=&quot;Setup&quot;&gt;&lt;/a&gt;Setup&lt;/h2&gt;&lt;p&gt;To Update NPM: &lt;code&gt;npm install npm@latest -g&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;In 2015 it makes sense to use NVM.  &lt;a href=&quot;http://linoxide.com/ubuntu-how-to/install-node-js-ubuntu&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;NVM Installation&lt;br&gt;Instructions&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Update NPM: &lt;code&gt;npm install npm@latest -g&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;Hexo: why can’t you use helper functions in source code?&lt;br&gt;This should be in docs.&lt;/p&gt;
+&lt;h2 id=&quot;Creating-a-Custom-Index-File-in-Hexo&quot;&gt;&lt;a href=&quot;#Creating-a-Custom-Index-File-in-Hexo&quot; class=&quot;headerlink&quot; title=&quot;Creating a Custom Index File in Hexo&quot;&gt;&lt;/a&gt;Creating a Custom Index File in Hexo&lt;/h2&gt;&lt;p&gt;Trying to generate a custom index file in source, hexo would ignore&lt;br&gt;&lt;code&gt;source/index.md&lt;/code&gt; no matter what I did.  What I had to do was uninstall&lt;br&gt;&lt;code&gt;hexo-generator-index&lt;/code&gt;.  &lt;a href=&quot;https://github.com/hexojs/hexo/issues/1077&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;See&lt;br&gt;here&lt;/a&gt;.  Then it works.  So, that&lt;br&gt;will be part of the setup for my theme.  But, it’s worth it in order to properly&lt;br&gt;seperate the theme from the content, I think.  Having everyone edit the theme&lt;br&gt;index.ejs template is no good.&lt;/p&gt;
+&lt;h2 id=&quot;Hexo-Rendering-Raw-EJS-File-Problem-I-Encountered&quot;&gt;&lt;a href=&quot;#Hexo-Rendering-Raw-EJS-File-Problem-I-Encountered&quot; class=&quot;headerlink&quot; title=&quot;Hexo Rendering Raw EJS File Problem I Encountered&quot;&gt;&lt;/a&gt;Hexo Rendering Raw EJS File Problem I Encountered&lt;/h2&gt;&lt;p&gt;Sometimes the server would keep rendering an old version of my code, but as&lt;br&gt;text.  So I’d see stuff like&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;% if (site.tags.length){ %&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The raw ejs, essentially.  Restarting the server or running &lt;code&gt;hexo clean&lt;/code&gt; didn’t&lt;br&gt;do anything.&lt;/p&gt;
+&lt;p&gt;After some time, I realized it was due to the gedit swap files being read by&lt;br&gt;hexo as the actual layout files: for example, &lt;code&gt;tag.ejs~&lt;/code&gt;.  My &lt;code&gt;partial&lt;/code&gt; helpers&lt;br&gt;looked like: &lt;code&gt;&amp;lt;%- partial(&amp;#39;_partials/tag&amp;#39;) %&amp;gt;&lt;/code&gt;, and apparently hexo was reading&lt;br&gt;in &lt;code&gt;tag.ejs~&lt;/code&gt; instead of &lt;code&gt;tag.ejs&lt;/code&gt;.  And therefore, the ejs wasn’t rendering.&lt;/p&gt;
+&lt;p&gt;To fix this, I simply changed my partial helper to &lt;code&gt;&amp;lt;%-
+partial(&amp;#39;_partials/tag.ejs&amp;#39;) %&amp;gt;&lt;/code&gt;.  Problem solved.&lt;/p&gt;
+&lt;h2 id=&quot;Hexo-Excerpt-Variable&quot;&gt;&lt;a href=&quot;#Hexo-Excerpt-Variable&quot; class=&quot;headerlink&quot; title=&quot;Hexo Excerpt Variable&quot;&gt;&lt;/a&gt;Hexo Excerpt Variable&lt;/h2&gt;&lt;p&gt;I was confused by the behavior of the hexo &lt;code&gt;excerpt&lt;/code&gt; variable.  If you define&lt;br&gt;&lt;code&gt;excerpt: something&lt;/code&gt; in the front matter, hexo ignores that.  Instead, to get it&lt;br&gt;to work, one needs to add a &lt;code&gt;&amp;lt;!-- more --&amp;gt;&lt;/code&gt; comment in the source of the post.&lt;br&gt;Or, you can install a plugin that allows you to define custom excerpt in the&lt;br&gt;front matter.&lt;/p&gt;
+&lt;h2 id=&quot;Scripts-Directory&quot;&gt;&lt;a href=&quot;#Scripts-Directory&quot; class=&quot;headerlink&quot; title=&quot;Scripts Directory&quot;&gt;&lt;/a&gt;Scripts Directory&lt;/h2&gt;&lt;p&gt;One of the things I really discovered too late is the “Scripts” directory in the&lt;br&gt;theme folder.  In Hexo, the various plugins drive the structure of the site, as&lt;br&gt;opposed to the placement of different files and directories, as in Jekyll.  The&lt;br&gt;plugins programatically create folder structure, etc, where in Jekyll I mostly&lt;br&gt;used the liquid markup to structure the site.  &lt;/p&gt;
+&lt;p&gt;The problem is, then, that the user wants to extend hexo to do some sort of&lt;br&gt;custom thing.  If one had to publish a new plugin, that’d be too much work.  But&lt;br&gt;the theme level scripts folder allows one to extend the base hexo functionality&lt;br&gt;in ‘user space’ effectively.&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;div class=&quot;image-strip&quot;&gt;&lt;br&gt;&lt;img src=&quot;https://s3.amazonaws.com/ptsteadman-images/hexo.png&quot;&gt;&lt;br&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;Setup&quot;&gt;&lt;a href=&quot;#Setup&quot; clas
+    
+    </summary>
+    
+      <category term="Hexo" scheme="http://yoursite.com/categories/Hexo/"/>
+    
+    
+      <category term="Programming" scheme="http://yoursite.com/tags/Programming/"/>
+    
+      <category term="Design" scheme="http://yoursite.com/tags/Design/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>How To Impress Employers at Infosessions</title>
+    <link href="http://yoursite.com/2015/05/02/2015-05-02-How-To-Impress/"/>
+    <id>http://yoursite.com/2015/05/02/2015-05-02-How-To-Impress/</id>
+    <published>2015-05-01T16:00:00.000Z</published>
+    <updated>2016-03-20T06:58:01.690Z</updated>
+    
+    <content type="html">&lt;p&gt;Top tech talent knows that industry recruiters often bring a stack of&lt;br&gt;pre-negotiated offers to university infosessions, so that they can snag&lt;br&gt;programmers and UX designers who really stand out.  Instead of spending valuable&lt;br&gt;time validating a particularly promising candidate’s skillset through a&lt;br&gt;protracted series of interviews, it’s often more efficient to simply &lt;strong&gt;give the&lt;br&gt;individual an offer right then and there&lt;/strong&gt;.  Internal studies at Google have shown&lt;br&gt;that experienced recruiters can usually tell if a programmer has ‘what it takes’&lt;br&gt;just from how they act at infosessions: the insightful questions they ask, the&lt;br&gt;stickers on their laptop, and how they comport themselves in general.&lt;/p&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;p&gt;Top tech talent knows that industry recruiters often bring a stack of&lt;br&gt;pre-negotiated offers to university infosessions, so that they can snag&lt;br&gt;programmers and UX designers who really stand out.  Instead of spending valuable&lt;br&gt;time validating a particularly promising candidate’s skillset through a&lt;br&gt;protracted series of interviews, it’s often more efficient to simply &lt;strong&gt;give the&lt;br&gt;individual an offer right then and there&lt;/strong&gt;.  Internal studies at Google have shown&lt;br&gt;that experienced recruiters can usually tell if a programmer has ‘what it takes’&lt;br&gt;just from how they act at infosessions: the insightful questions they ask, the&lt;br&gt;stickers on their laptop, and how they comport themselves in general.&lt;/p&gt;
+&lt;p&gt;Here are some of tips for optimizing your infosession performance:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;Ask questions to get a feel for the company’s culture.  For example, I always&lt;br&gt;start off by asking “do you have a mandatory drug test?”.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Make sure that the recruiters know you’re passionate about the company by&lt;br&gt;crying.  &lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Don’t be that awkward guy who goes up for more pizza while the presenter is&lt;br&gt;providing valuable information about the company’s agile development cycle.&lt;br&gt;Instead, demonstrate your ability to amortize I/O costs via bulk loading:&lt;br&gt;bring a whole box of pizza back to your seat.  Protip: “free swag” t-shirts&lt;br&gt;make great face rags, so grab a handful.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Stay focused by minimizing distractions.  I typically wear my Bose&lt;br&gt;QuietComfort noise cancelling headphones during the presentation.  This way I&lt;br&gt;retain more information from the PowerPoint, which really impresses the&lt;br&gt;recruiters during the networking session.  Follow me on Spotify to check out&lt;br&gt;my special “Let’s Do This Infosession” playlist.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Getting invited to the ‘after-infosession’ is critical.  During the networking&lt;br&gt;session, ask the recruiters what hotel they’re staying at, and make sure that&lt;br&gt;they know that you ‘know a guy’.  Without fail, someone will slip a wax-sealed&lt;br&gt;envelope under your door at midnight, the coveted invitation to an another, more&lt;br&gt;exclusive networking event.  &lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;If you follow these simple tips and brush up on your data structures, you’ll&lt;br&gt;soon be literally &lt;em&gt;drowning&lt;/em&gt; in offers, like everyone else.  If these tips don’t&lt;br&gt;work out for you, you probably need to get your MEng.&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;Top tech talent knows that industry recruiters often bring a stack of&lt;br&gt;pre-negotiated offers to university infosessions, so that they can snag&lt;br&gt;programmers and UX designers who really stand out.  Instead of spending valuable&lt;br&gt;time validating a particularly promising candidate’s skillset through a&lt;br&gt;protracted series of interviews, it’s often more efficient to simply &lt;strong&gt;give the&lt;br&gt;individual an offer right then and there&lt;/strong&gt;.  Internal studies at Google have shown&lt;br&gt;that experienced recruiters can usually tell if a programmer has ‘what it takes’&lt;br&gt;just from how they act at infosessions: the insightful questions they ask, the&lt;br&gt;stickers on their laptop, and how they comport themselves in general.&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Humor" scheme="http://yoursite.com/categories/Humor/"/>
+    
+    
+      <category term="funny" scheme="http://yoursite.com/tags/funny/"/>
+    
+      <category term="employment" scheme="http://yoursite.com/tags/employment/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>NAV Web Service Programming Resources</title>
+    <link href="http://yoursite.com/2015/04/08/2015-04-08-NAV-Programming-Resources/"/>
+    <id>http://yoursite.com/2015/04/08/2015-04-08-NAV-Programming-Resources/</id>
+    <published>2015-04-07T16:00:00.000Z</published>
+    <updated>2016-03-20T06:58:01.724Z</updated>
+    
+    <content type="html">&lt;p&gt;Here are some of the resources I found helpful for learning to develop Dynamics NAV web service based applications.&lt;/p&gt;
+&lt;h4 id=&quot;C-AL-Programming&quot;&gt;&lt;a href=&quot;#C-AL-Programming&quot; class=&quot;headerlink&quot; title=&quot;C/AL Programming:&quot;&gt;&lt;/a&gt;C/AL Programming:&lt;/h4&gt;&lt;p&gt;&lt;a href=&quot;http://www.consultec.es/DocTutoriales/Introduction_to_CAL_Programming.pdf&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Introduction to CAL Programming&lt;/a&gt;&lt;br&gt;This provides a good overview of the basics of CAL programming, which can become necessary in building a web service applications when a custom codeunit or page extension is required.&lt;/p&gt;
+&lt;h4 id=&quot;Setting-up-Web-Services&quot;&gt;&lt;a href=&quot;#Setting-up-Web-Services&quot; class=&quot;headerlink&quot; title=&quot;Setting up Web Services:&quot;&gt;&lt;/a&gt;Setting up Web Services:&lt;/h4&gt;&lt;p&gt;&lt;a href=&quot;http://vjeko.com/blog/connecting-to-nav-through-web-services-recorded-session&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Vjecko Web Service Recorded Session&lt;/a&gt;&lt;br&gt;Vjecko.com has a lot of detailed articles about web service programming, but this older post has a pdf and recorded session that shows how to expose and connect to web services from a .NET application.  Unfortunately, he shows how to create Web Service references in .NET using the now-deprecated Web Refrence method (from .NET 2) instead of the more current Service Reference method.&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;http://blogs.msdn.com/b/freddyk/archive/2010/01/20/connecting-to-nav-web-services-from-c-using-service-reference-config-file-version.aspx&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Using Service Reference to Connect to Web Services&lt;/a&gt;&lt;br&gt;This explains how to use Service Reference, using code instead of XML web.config configuration, which I found difficult to configure.  (Each time I updated the service reference, I would have to reconfigure the XML).&lt;/p&gt;
+&lt;h4 id=&quot;NAV-Upgrade-Process&quot;&gt;&lt;a href=&quot;#NAV-Upgrade-Process&quot; class=&quot;headerlink&quot; title=&quot;NAV Upgrade Process:&quot;&gt;&lt;/a&gt;NAV Upgrade Process:&lt;/h4&gt;&lt;p&gt;&lt;a href=&quot;http://saurav-nav.blogspot.com/2012/12/nav-2013-upgrade-part-iv-sql-migration.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Migration to SQL Server from C/SIDE Database&lt;/a&gt;&lt;br&gt;In order to use web services, you don’t need to be using the Role Tailored Client, but you must be using the a SQL server based NAV database.  Web Services can be configured and exposed using the Classic Client for SQL Server Databases.&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;http://blogs.msdn.com/b/nav/archive/2012/03/05/rtc-debugging.aspx&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Debugging Code Called by Web Services&lt;/a&gt;&lt;br&gt;C/AL code won’t necessarily execute the same as it did in the Classic Client when called  as a Web Service.  C/AL code called as web service execute in the NAV Server tier, instead of the client.  &lt;a href=&quot;http://msdn.microsoft.com/en-us/library/ff477107.aspx&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Certain functions&lt;/a&gt; aren’t available for code running in the NAV Server, and some design changes need to be made (for example, CONFIRM dialogue boxes don’t make sense in the context of a web service).  To debug the codeunits called through web services (or the Role Tailored Client), you will need to use Visual Studio.&lt;br&gt;&lt;a href=&quot;http://msdn.microsoft.com/en-us/library/dd338765.aspx#SU&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;More information.&lt;/a&gt;&lt;/p&gt;
+&lt;h4 id=&quot;Deploying-a-NET-Application&quot;&gt;&lt;a href=&quot;#Deploying-a-NET-Application&quot; class=&quot;headerlink&quot; title=&quot;Deploying a .NET Application:&quot;&gt;&lt;/a&gt;Deploying a .NET Application:&lt;/h4&gt;&lt;p&gt;&lt;a href=&quot;http://www.asp.net/mvc/overview/deployment/visual-studio-web-deployment/deploying-to-iis&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Deploying to IIS&lt;/a&gt;  After you’ve built a .NET application that consumes .NET web services, you’ll have to find a way to deploy it on your servers, or Azure.  Connection strings can be used to specify different NAV servers for different environments (like development, QA, and prod).&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;Here are some of the resources I found helpful for learning to develop Dynamics NAV web service based applications.&lt;/p&gt;
+&lt;h4 id=&quot;C-AL-Prog
+    
+    </summary>
+    
+      <category term="Dynamics NAV" scheme="http://yoursite.com/categories/Dynamics-NAV/"/>
+    
+    
+      <category term="Resources" scheme="http://yoursite.com/tags/Resources/"/>
+    
+      <category term="NAV" scheme="http://yoursite.com/tags/NAV/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Adding Lookup Field to a Page in Dynamics NAV</title>
+    <link href="http://yoursite.com/2015/04/05/2015-04-05-Lookup-on-Page/"/>
+    <id>http://yoursite.com/2015/04/05/2015-04-05-Lookup-on-Page/</id>
+    <published>2015-04-04T16:00:00.000Z</published>
+    <updated>2016-03-20T06:58:01.733Z</updated>
+    
+    <content type="html">&lt;p&gt;One of the problems I faced in building a non-trivial application that consumed&lt;br&gt;NAV Web Services was figuring out how to “join” fields from different tables.&lt;br&gt;For example, when exposing a list of jobs from a job table which includes a&lt;br&gt;resource needed for the job, you might need more than just the resource id&lt;br&gt;that’s a field in the table: you might also need the resource name and&lt;br&gt;description.  While this is easy to get for one record, what about when you&lt;br&gt;need a few hundred records in a table that has been dynamically filtered?  When&lt;br&gt;exposing a Page as a web service, it’s easy to include the fields of the table&lt;br&gt;that the page is based on, but it’s less clear how to include fields from&lt;br&gt;another table.&lt;/p&gt;
+&lt;p&gt;Forum posts like &lt;a href=&quot;http://dynamicsuser.net/forums/p/32550/170843.aspx&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;this&lt;/a&gt; led me to believe that I couldn’t expose flow fields in a Page web service, and I would get exceptions when I tried to expose all the fields of a table.  In fact, it’s perfectly possible to expose a flow field: it’s &lt;strong&gt;flow filters&lt;/strong&gt; that don’t work with web services.  But, I also didn’t want to modify the underlying [job] table to add a flow field, and didn’t see an easy way of adding a flow field to a Page.  I tried “joining” the data in the C# application, but found network overhead made the application unusuably slow.&lt;/p&gt;
+&lt;p&gt;The solution to this problem was to use C/AL code to the Page to effectively create a lookup / flow field.  This way, the data is “pre-joined” before leaving the NAV Server, which is fast and clean, but you didn’t modify any tables.  Here’s how it’s done:&lt;/p&gt;
+&lt;p&gt;Step 1. &lt;strong&gt;Add a Field with SourceExpression Set to a Function Name&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;To start, we create a Page using the wizard that includes all of the fields of an underlying table.  Then, we create manually add fields that will contain the lookup data from other tables.  The text in the SourceExpression column will be the name of the function that populates this field.&lt;br&gt;&lt;img src=&quot;http://ptsteadman.github.io/images/lookup-1.PNG&quot; alt=&quot;Add a Field with SourceExpression Set to a Function Name&quot;&gt;&lt;/p&gt;
+&lt;p&gt;Step 2. &lt;strong&gt;Create Function in the Page’s C/AL Code&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;With the Page field designer open, go to the functions tab of C/AL Globals form, and add a function with the name of the text in the SourceExpression column.  Set the return type of the function with the “Locals” button, and a function trigger will appear in the C/AL code editor for your page.  Add code to the body of the function trigger that will be called for each record to provide a value for the field.&lt;br&gt;&lt;img src=&quot;http://ptsteadman.github.io/images/lookup-2.PNG&quot; alt=&quot;Create Function in the Page&amp;#39;s C/AL Code&quot;&gt;&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;One of the problems I faced in building a non-trivial application that consumed&lt;br&gt;NAV Web Services was figuring out how to “join” fields
+    
+    </summary>
+    
+      <category term="Dynamics NAV" scheme="http://yoursite.com/categories/Dynamics-NAV/"/>
+    
+    
+      <category term="Resources" scheme="http://yoursite.com/tags/Resources/"/>
+    
+      <category term="NAV" scheme="http://yoursite.com/tags/NAV/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Static NGINX Locations</title>
+    <link href="http://yoursite.com/2015/04/01/2015-04-01-NGINX-Static-Locations/"/>
+    <id>http://yoursite.com/2015/04/01/2015-04-01-NGINX-Static-Locations/</id>
+    <published>2015-03-31T16:00:00.000Z</published>
+    <updated>2016-03-20T06:58:01.686Z</updated>
+    
+    <content type="html">&lt;p&gt;I try to get a lot of mileage out of the single AWS t2.micro instance I keep running,&lt;br&gt;which means I have many different projects running on different paths on a single server.  Everytime I finish a project, I have to relearn how to add new “locations” (paths) to the NGINX virtual host.&lt;/p&gt;
+&lt;p&gt;I was really frustrated when I couldn’t figure out how to add a static location for the Jekyll&lt;br&gt;website I created for the game I’m developing.  I kept trying to do something like this:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;location / {
+  root /home/ubuntu/personal-website;
+}
+location /array {
+  root /home/ubuntu/array-website/_site;
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;But everytime I tried to visit [&lt;a href=&quot;http://ptsteadman.com/array&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://ptsteadman.com/array&lt;/a&gt;], I would get a 404 error.&lt;br&gt;I tried a bunch of things: I changed the “root” of the the &lt;code&gt;/&lt;/code&gt; location to my game website, and it worked.  But no matter what I did, after using &lt;code&gt;sudo service nginx restart&lt;/code&gt;,&lt;br&gt;trying to visit the &lt;code&gt;/array&lt;/code&gt; location still resulted in a 404.  I couldn’t add the new route/location.&lt;/p&gt;
+&lt;p&gt;Eventually, I realized that the text after the slash in the location is the directory that&lt;br&gt;NGINX will try to find in the “root” location.  So, &lt;code&gt;location /array&lt;/code&gt; will look for the directory (or file)&lt;br&gt;&lt;code&gt;array&lt;/code&gt; in whatever directory “root” is set to.  So, I created a symlink to the root of my&lt;br&gt;static jekyll site with the command &lt;code&gt;ln -s /home/ubuntu/array-website/_site /home/ubuntu/array&lt;/code&gt;, and&lt;br&gt;then I could set up my nginx config file in &lt;code&gt;sites-enabled&lt;/code&gt; as below:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;location / {
+  root /home/ubuntu/personal-website;
+}
+location /array {
+  root /home/ubuntu;
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;I think this stuff is all pretty obvious to someone who really understands NGINX and file serving,&lt;br&gt;but I only touch NGINX when I’ve finished a project and feel impatient to deploy.  I think it’s very confusing&lt;br&gt;that NGINX seems to handle paths differently between &lt;code&gt;/&lt;/code&gt; locations and and &lt;code&gt;/foo&lt;/code&gt; locations,&lt;br&gt;but a real understanding of NGINX might clear things up.&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;I try to get a lot of mileage out of the single AWS t2.micro instance I keep running,&lt;br&gt;which means I have many different projects runni
+    
+    </summary>
+    
+      <category term="NGINX" scheme="http://yoursite.com/categories/NGINX/"/>
+    
+    
+      <category term="Web Development" scheme="http://yoursite.com/tags/Web-Development/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Spaces for Newline Indents in VS</title>
+    <link href="http://yoursite.com/2015/03/23/2015-03-23-Make-VS-Insert-Spaces/"/>
+    <id>http://yoursite.com/2015/03/23/2015-03-23-Make-VS-Insert-Spaces/</id>
+    <published>2015-03-22T16:00:00.000Z</published>
+    <updated>2016-03-20T06:58:01.682Z</updated>
+    
+    <content type="html">&lt;p&gt;It’s really annoying when Visual Studio shows you this:&lt;/p&gt;
+&lt;img src=&quot;http://ptsteadman.github.io/images/vs1.png&quot;&gt;
+&lt;p&gt;But github or vim shows you the same file like this:&lt;/p&gt;
+&lt;img src=&quot;http://ptsteadman.github.io/images/vim1.png&quot;&gt;
+&lt;p&gt;If you use the “show whitespace” Visual Studio chord &lt;code&gt;(CTRL-R, CTRL-W)&lt;/code&gt;,&lt;br&gt;you’ll see that visual studio inserts tabs instead of spaces by&lt;br&gt;default for newline indent:&lt;/p&gt;
+&lt;img src=&quot;http://ptsteadman.github.io/images/ws.png&quot;&gt;
+&lt;p&gt;Visual Studio displays tabs as having the same&lt;br&gt;width as four spaces.  But if you’re collaborating with someone working&lt;br&gt;in another text editor like vim, your automatically-inserted tabs will&lt;br&gt;appear larger than four spaces.&lt;/p&gt;
+&lt;p&gt;Here’s how to make visual studio insert spaces instead of tabs on newline indents:&lt;br&gt;go to &lt;code&gt;Tools-&amp;gt;Options-&amp;gt;Text Editor-&amp;gt;All Languages-&amp;gt;Tabs&lt;/code&gt;:&lt;/p&gt;
+&lt;img src=&quot;http://ptsteadman.github.io/images/spaces.png&quot;&gt;
+&lt;p&gt;That’s better:&lt;/p&gt;
+&lt;img src=&quot;http://ptsteadman.github.io/images/ws2.png&quot;&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;It’s really annoying when Visual Studio shows you this:&lt;/p&gt;
+&lt;img src=&quot;http://ptsteadman.github.io/images/vs1.png&quot;&gt;
+&lt;p&gt;But github or vim s
+    
+    </summary>
+    
+      <category term=".NET" scheme="http://yoursite.com/categories/NET/"/>
+    
+    
+      <category term="C#" scheme="http://yoursite.com/tags/C/"/>
+    
+      <category term="Visual Studio" scheme="http://yoursite.com/tags/Visual-Studio/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Welcome To Hexo</title>
+    <link href="http://yoursite.com/2014/02/23/2014-02-23-hello-world/"/>
+    <id>http://yoursite.com/2014/02/23/2014-02-23-hello-world/</id>
+    <published>2014-02-22T16:00:00.000Z</published>
+    <updated>2016-03-20T06:58:01.663Z</updated>
+    
+    <content type="html">&lt;p&gt;Welcome to &lt;a href=&quot;http://hexo.io/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Hexo&lt;/a&gt;! This is your very first post. Check &lt;a href=&quot;http://hexo.io/docs/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;documentation&lt;/a&gt; for more info. If you get any problems when using Hexo, you can find the answer in &lt;a href=&quot;http://hexo.io/docs/troubleshooting.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;troubleshooting&lt;/a&gt; or you can ask me on &lt;a href=&quot;https://github.com/hexojs/hexo/issues&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;GitHub&lt;/a&gt;.&lt;/p&gt;
+&lt;h2 id=&quot;Quick-Start&quot;&gt;&lt;a href=&quot;#Quick-Start&quot; class=&quot;headerlink&quot; title=&quot;Quick Start&quot;&gt;&lt;/a&gt;Quick Start&lt;/h2&gt;&lt;h3 id=&quot;Create-a-new-post&quot;&gt;&lt;a href=&quot;#Create-a-new-post&quot; class=&quot;headerlink&quot; title=&quot;Create a new post&quot;&gt;&lt;/a&gt;Create a new post&lt;/h3&gt;&lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;$ hexo new &lt;span class=&quot;string&quot;&gt;&quot;My New Post&quot;&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;p&gt;More info: &lt;a href=&quot;http://hexo.io/docs/writing.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Writing&lt;/a&gt;&lt;/p&gt;
+&lt;h3 id=&quot;Run-server&quot;&gt;&lt;a href=&quot;#Run-server&quot; class=&quot;headerlink&quot; title=&quot;Run server&quot;&gt;&lt;/a&gt;Run server&lt;/h3&gt;&lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;$ hexo server&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;More info: &lt;a href=&quot;http://hexo.io/docs/server.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Server&lt;/a&gt;&lt;/p&gt;
+&lt;h3 id=&quot;Generate-static-files&quot;&gt;&lt;a href=&quot;#Generate-static-files&quot; class=&quot;headerlink&quot; title=&quot;Generate static files&quot;&gt;&lt;/a&gt;Generate static files&lt;/h3&gt;&lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;$ hexo generate&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;More info: &lt;a href=&quot;http://hexo.io/docs/generating.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Generating&lt;/a&gt;&lt;/p&gt;
+&lt;h3 id=&quot;Deploy-to-remote-sites&quot;&gt;&lt;a href=&quot;#Deploy-to-remote-sites&quot; class=&quot;headerlink&quot; title=&quot;Deploy to remote sites&quot;&gt;&lt;/a&gt;Deploy to remote sites&lt;/h3&gt;&lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;$ hexo deploy&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;More info: &lt;a href=&quot;http://hexo.io/docs/deployment.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Deployment&lt;/a&gt;&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;Welcome to &lt;a href=&quot;http://hexo.io/&quot;&gt;Hexo&lt;/a&gt;! This is your very first post. Check &lt;a href=&quot;http://hexo.io/docs/&quot;&gt;documentation&lt;/a&gt; for more info. If you get any problems when using Hexo, you can find the answer in &lt;a href=&quot;http://hexo.io/docs/troubleshooting.html&quot;&gt;troubleshooting&lt;/a&gt; or you can ask me on &lt;a href=&quot;https://github.com/hexojs/hexo/issues&quot;&gt;GitHub&lt;/a&gt;.&lt;/p&gt;
+&lt;h2 id=&quot;Quick-Start&quot;&gt;&lt;a href=&quot;#Quick-Start&quot; class=&quot;headerlink&quot; title=&quot;Quick Start&quot;&gt;&lt;/a&gt;Quick Start&lt;/h2&gt;&lt;h3 id=&quot;Create-a-new-post&quot;&gt;&lt;a href=&quot;#Create-a-new-post&quot; class=&quot;headerlink&quot; title=&quot;Create a new post&quot;&gt;&lt;/a&gt;Create a new post&lt;/h3&gt;&lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;$ hexo new &lt;span class=&quot;string&quot;&gt;&quot;My New Post&quot;&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+    
+    </summary>
+    
+      <category term="Hexo" scheme="http://yoursite.com/categories/Hexo/"/>
+    
+    
+      <category term="Welcome" scheme="http://yoursite.com/tags/Welcome/"/>
+    
+      <category term="How-To" scheme="http://yoursite.com/tags/How-To/"/>
+    
+  </entry>
+  
 </feed>
